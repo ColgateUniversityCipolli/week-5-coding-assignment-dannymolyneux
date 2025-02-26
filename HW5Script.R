@@ -11,7 +11,7 @@ current.filename = "EssentiaOutput/The Front Bottoms-Talon Of The Hawk-Au Revoir
 
 file.parts = str_split(current.filename, "-")[[1]] #gets the track, artist, and album
 track.json = file.parts[length(file.parts)] #track name with the .json
-track.name = str_sub(track.json, start = 1, end = length(track.name) - 7) #just track name
+track.name = str_sub(track.json, start = 1, end = length(track.json) - 7) #just track name
 track.album = file.parts[length(file.parts) - 1] #album name
 artist = file.parts[length(file.parts) - 2] #artist name with "EssentiaOutput/"
 track.artist = str_split(artist, "/")[[1]][[2]] #just artist name
@@ -38,7 +38,7 @@ json.df <- lapply(files, function(file) { #data frame that will have info for ea
   json <- fromJSON(paste("EssentiaOutput/", file, sep = "")) #variable for each new file
   file.parts <- str_split(basename(file), "-")[[1]] #gives just the file parts, not the "EssentiaOutput/"
   track.json <- file.parts[length(file.parts)] #track name with .json
-  track <- str_sub(track.json, start = 1, end = length(track.name) - 7) #just track name
+  track <- str_sub(track.json, start = 1, end = length(track.json) - 7) #just track name
   album <- file.parts[length(file.parts) - 1] #album name
   artist <- file.parts[length(file.parts) - 2] #artist name
   #features
@@ -66,7 +66,7 @@ json.df <- lapply(files, function(file) { #data frame that will have info for ea
   )
 })
 json.df = bind_rows(json.df)
-view(json.df)
+#view(json.df)
 
 #step 3
 essentia.data = read_csv("EssentiaOutput/EssentiaModelOutput.csv") #all essentia data
@@ -92,6 +92,13 @@ essentia.data <- essentia.data %>% #super pipe
 #view(essentia.data)
 
 #step 4
+liwc = read_csv("LIWCOutput/LIWCOutput.csv")
+#view(liwc)
 
-
+combined <- json.df |>
+  #makes sure to not duplicate the 3 columns in common
+  left_join(essentia.data, by = c("artist", "track", "album")) |> #merge json.df with essentia.data
+  left_join(liwc, by = c("artist", "track", "album")) |> #now merge liwc with the other two
+  rename(funct = "function") #change column name
+view(combined)
 
