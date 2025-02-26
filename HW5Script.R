@@ -68,6 +68,30 @@ json.df <- lapply(files, function(file) { #data frame that will have info for ea
 json.df = bind_rows(json.df)
 view(json.df)
 
+#step 3
+essentia.data = read_csv("EssentiaOutput/EssentiaModelOutput.csv") #all essentia data
+#view(essentia.data)
+essentia.data <- essentia.data %>% #super pipe
+  mutate(
+    #gets the mean of all columns ending with that name
+    valence = rowMeans(select(., ends_with("valence"))),
+    arousal = rowMeans(select(., ends_with("arousal"))),
+    #gets the mean of all columns ending with that name excpet for the "not" columns
+    happy = rowMeans(select(., ends_with("happy") & !contains("not"))),
+    aggressive = rowMeans(select(., ends_with("aggressive") & !contains("not"))),
+    party = rowMeans(select(., ends_with("party") & !contains("not"))),
+    relaxed = rowMeans(select(., ends_with("relax") & !contains("not"))),
+    sad = rowMeans(select(., ends_with("sad") & !contains("not"))),
+    acoustic = rowMeans(select(., ends_with("acoustic") & !contains("not"))),
+    electric = rowMeans(select(., ends_with("electronic") & !contains("not"))),
+    instrumental = rowMeans(select(., ends_with("instrumental") & !contains("not"))),
+  ) |>
+ rename(timbreBright = "eff_timbre_bright") |> #rename the column
+ select(-c(4:47)) |> #remove columns
+ select(-eff_timbre_dark) #remove last unnecessary column
+#view(essentia.data)
+
+#step 4
 
 
 
